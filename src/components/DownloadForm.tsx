@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { Download, Link, Video, Music, Image, CheckCircle, Clipboard } from 'lucide-react';
 import { PlatformIcon } from './PlatformIcons';
+import { getApiUrl } from '@/config';
 
 interface DownloadFormProps { }
 
@@ -210,7 +211,7 @@ const DownloadForm: React.FC<DownloadFormProps> = () => {
         format: formatParam
       });
 
-      const response = await fetch(`/api/download?${params.toString()}`, {
+      const response = await fetch(getApiUrl(`/api/download?${params.toString()}`), {
         method: "GET",
       });
 

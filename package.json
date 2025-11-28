@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "server:dev": "node --watch ./server/index.js",
     "server:start": "node ./server/index.js",
-    "start:all": "concurrently -k -n server,web -c cyan,magenta \"npm:server:dev\" \"npm:dev\""
+    "start:all": "concurrently -k -n server,web -c cyan,magenta \"npm:server:dev\" \"npm:dev\"",
+    "render:build": "npm install && pip3 install -U yt-dlp"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

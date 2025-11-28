@@ -9,7 +9,39 @@ import { sanitizeFilename } from "./utils/filename.js";
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+// CORS configuration for production
+const corsOptions = {
+	origin: function (origin, callback) {
+		// Allow requests with no origin (mobile apps, curl, etc.)
+		if (!origin) return callback(null, true);
+
+		// Allow localhost for development
+		if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+			return callback(null, true);
+		}
+
+		// Allow Netlify domains
+		if (origin.includes('.netlify.app') || origin.includes('netlify.app')) {
+			return callback(null, true);
+		}
+
+		// Allow common hosting platforms
+		if (origin.includes('.vercel.app') || origin.includes('.railway.app') ||
+			origin.includes('.render.com') || origin.includes('.onrender.com')) {
+			return callback(null, true);
+		}
+
+		// Allow any HTTPS origin (more permissive, adjust as needed)
+		if (origin.startsWith('https://')) {
+			return callback(null, true);
+		}
+
+		callback(new Error('Not allowed by CORS'));
+	},
+	credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(morgan("dev"));
 app.set("trust proxy", true);
@@ -276,5 +308,8 @@ app.use((err, _req, res, _next) => {
 });
 
 app.listen(PORT, () => {
-	console.log(`Server listening on http://localhost:${PORT}`);
+	console.log(`✓ Server listening on http://localhost:${PORT}`);
+	console.log(`✓ Environment: ${process.env.NODE_ENV || 'development'}`);
+	console.log(`✓ CORS: Enabled for all HTTPS origins`);
+	console.log(`✓ Health check: http://localhost:${PORT}/api/health`);
 });
