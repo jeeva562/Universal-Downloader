@@ -200,28 +200,6 @@ app.get("/api/download", async (req, res) => {
 		}
 
 		res.setHeader("Content-Type", contentType);
-		res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-		res.setHeader("Cache-Control", "no-cache");
-
-		console.log(`Starting download: ${filename} (${contentType})`);
-
-		const dlArgs = [
-			"-f", ytDlpFormat,
-			"--no-warnings",
-			"--no-check-certificate",
-			"--no-playlist",
-			"--age-limit", "99",
-			"--extractor-args", "youtube:player_client=android",
-			"--user-agent", "com.google.android.youtube/17.36.4 (Linux; U; Android 12; GB) gzip",
-			"-o", "-",
-			url
-		];
-
-		if (format === "audio") {
-			dlArgs.splice(2, 0, "--extract-audio", "--audio-format", "m4a");
-		}
-
-		console.log("yt-dlp command:", "yt-dlp", dlArgs.join(" "));
 
 		const dlProcess = spawn("yt-dlp", dlArgs);
 
