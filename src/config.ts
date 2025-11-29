@@ -15,7 +15,9 @@ export function getApiUrl(endpoint: string): string {
         if (!backendUrl) {
             throw new Error('VITE_API_URL environment variable is not set');
         }
-        return `${backendUrl}${endpoint}`;
+        // Remove trailing slash if present
+        const cleanUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl;
+        return `${cleanUrl}${endpoint}`;
     }
 
     // In development, use proxy (relative URL)
