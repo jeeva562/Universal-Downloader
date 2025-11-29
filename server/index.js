@@ -6,8 +6,33 @@ import https from "https";
 import http from "http";
 import { sanitizeFilename } from "./utils/filename.js";
 
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Helper to find yt-dlp executable
+function getYtDlpPath() {
+	// Check local bin directory (relative to project root)
+	// server/index.js is in /server, so project root is ../
+	const localBinPath = path.resolve(__dirname, '..', 'bin', 'yt-dlp');
+
+	if (fs.existsSync(localBinPath)) {
+		console.log(`✅ Found local yt-dlp at: ${localBinPath}`);
+		return localBinPath;
+	}
+
+	// Check if it's in the PATH by trying to spawn 'which' or just returning 'yt-dlp'
+	console.log('⚠️ Local yt-dlp not found in bin/, using system PATH');
+	return 'yt-dlp';
+}
+
+const ytDlpExecutable = getYtDlpPath();
 
 // CORS configuration for production
 const corsOptions = {
@@ -146,7 +171,7 @@ app.get("/api/download", async (req, res) => {
 			url
 		];
 
-		const infoProcess = spawn("yt-dlp", infoArgs);
+		const infoProcess = spawn(ytDlpExecutable, infoArgs);
 
 		let filename = `download.${fileExt}`;
 		let infoOutput = "";
@@ -216,7 +241,7 @@ app.get("/api/download", async (req, res) => {
 		console.log(`Starting download: ${filename}`);
 		console.log(`yt-dlp args: ${dlArgs.join(" ")}`);
 
-		const dlProcess = spawn("yt-dlp", dlArgs);
+		const dlProcess = spawn(ytDlpExecutable, dlArgs);
 
 		let hasData = false;
 
