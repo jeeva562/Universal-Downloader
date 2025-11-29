@@ -49,3 +49,7 @@ pnpm-lock.yaml
 # Debug files
 *.log.*
 debug.*
+
+# Binary files
+bin/
+yt-dlp

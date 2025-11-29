@@ -4,7 +4,11 @@ services:
     env: node
     region: oregon
     plan: free
-    buildCommand: npm install && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o ./yt-dlp && chmod a+rx ./yt-dlp
+    buildCommand: |
+      npm install
+      mkdir -p bin
+      curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o bin/yt-dlp
+      chmod a+rx bin/yt-dlp
     startCommand: npm run server:start
     envVars:
       - key: NODE_ENV
@@ -12,4 +16,4 @@ services:
       - key: PORT
         value: 3001
       - key: PATH
-        value: /opt/render/project/src:$PATH
+        value: /opt/render/project/src/bin:$PATH
