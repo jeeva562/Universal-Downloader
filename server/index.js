@@ -200,6 +200,21 @@ app.get("/api/download", async (req, res) => {
 		}
 
 		res.setHeader("Content-Type", contentType);
+		res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+
+		// Define yt-dlp arguments for streaming download
+		const dlArgs = [
+			"-f", ytDlpFormat,
+			"-o", "-", // Output to stdout
+			"--no-warnings",
+			"--no-check-certificate",
+			"--age-limit", "99",
+			"--no-playlist",
+			url
+		];
+
+		console.log(`Starting download: ${filename}`);
+		console.log(`yt-dlp args: ${dlArgs.join(" ")}`);
 
 		const dlProcess = spawn("yt-dlp", dlArgs);
 
