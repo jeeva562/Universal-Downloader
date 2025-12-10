@@ -161,6 +161,13 @@ app.get("/api/download", async (req, res) => {
 		console.log(`Format requested: ${format}, yt-dlp format: ${ytDlpFormat}`);
 
 		// Get media info
+		// YouTube-specific workarounds to bypass bot detection
+		const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
+		const youtubeArgs = isYouTube ? [
+			"--extractor-args", "youtube:player_client=android,web",
+			"--user-agent", "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+		] : [];
+
 		const infoArgs = [
 			"--get-filename",
 			"-o", "%(title)s.%(ext)s",
@@ -168,6 +175,7 @@ app.get("/api/download", async (req, res) => {
 			"--no-warnings",
 			"--no-check-certificate",
 			"--age-limit", "99",
+			...youtubeArgs,
 			url
 		];
 
@@ -235,6 +243,7 @@ app.get("/api/download", async (req, res) => {
 			"--no-check-certificate",
 			"--age-limit", "99",
 			"--no-playlist",
+			...youtubeArgs,
 			url
 		];
 

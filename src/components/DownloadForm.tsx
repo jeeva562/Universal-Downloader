@@ -250,19 +250,27 @@ const DownloadForm: React.FC<DownloadFormProps> = () => {
     } catch (error: any) {
       console.error('Download error:', error);
 
+      let errorTitle = "Download Failed";
       let errorMessage = "Unable to download the media. ";
-      if (error?.message?.includes('404')) {
+
+      // Check for YouTube bot detection / sign-in issues
+      if (error?.message?.includes('Sign in') || error?.message?.includes('bot')) {
+        errorTitle = "YouTube Protection Triggered";
+        errorMessage = "YouTube is blocking this download due to bot detection. This is a platform limitation, especially on cloud servers. Try a different video or use yt-dlp locally.";
+      } else if (error?.message?.includes('404')) {
         errorMessage += "The content was not found. It may be private or deleted.";
       } else if (error?.message?.includes('403')) {
         errorMessage += "Access denied. The content may be restricted.";
       } else if (error?.message?.includes('timeout')) {
         errorMessage += "Download timed out. Please try again.";
+      } else if (error?.message?.includes('private') || error?.message?.includes('login')) {
+        errorMessage += "This content requires login and is not publicly available.";
       } else {
         errorMessage += "Please check the URL and try again.";
       }
 
       toast({
-        title: "Download Failed",
+        title: errorTitle,
         description: errorMessage,
         variant: "destructive",
         duration: 5000,
