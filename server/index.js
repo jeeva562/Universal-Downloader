@@ -142,31 +142,51 @@ app.get("/api/download", async (req, res) => {
 		// Video/Audio download via yt-dlp
 		let ytDlpFormat;
 		let fileExt;
+		const defaultVideoExt = "mp4";
+		const defaultAudioExt = "m4a";
 
 		if (format === "audio") {
 			ytDlpFormat = "bestaudio";
-			fileExt = "m4a";
+			fileExt = defaultAudioExt;
 		} else if (format === "video") {
 			ytDlpFormat = "best[ext=mp4]/best";
-			fileExt = "mp4";
+			fileExt = defaultVideoExt;
 		} else if (format.startsWith("quality:")) {
 			const quality = format.split(":")[1].replace("p", "");
 			ytDlpFormat = `best[height<=${quality}][ext=mp4]/best[height<=${quality}]`;
-			fileExt = "mp4";
+			fileExt = defaultVideoExt;
 		} else {
 			ytDlpFormat = "best[ext=mp4]/best";
-			fileExt = "mp4";
+			fileExt = defaultVideoExt;
 		}
 
 		console.log(`Format requested: ${format}, yt-dlp format: ${ytDlpFormat}`);
 
+		// Valid video/audio extensions - used to validate extracted extension
+		const validVideoExts = ['mp4', 'm4v', 'webm', 'mkv', 'avi', 'mov', 'flv', '3gp'];
+		const validAudioExts = ['m4a', 'mp3', 'aac', 'opus', 'ogg', 'wav', 'flac', 'webm'];
+		const validMediaExts = [...validVideoExts, ...validAudioExts];
+
 		// Get media info
 		// YouTube-specific workarounds to bypass bot detection
 		const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
-		const youtubeArgs = isYouTube ? [
-			"--extractor-args", "youtube:player_client=android,web",
-			"--user-agent", "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
-		] : [];
+		const isInstagram = url.includes('instagram.com');
+
+		// Platform-specific arguments
+		let platformArgs = [];
+		if (isYouTube) {
+			platformArgs = [
+				"--extractor-args", "youtube:player_client=android,web",
+				"--user-agent", "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+			];
+		} else if (isInstagram) {
+			// Instagram-specific workarounds
+			platformArgs = [
+				"--user-agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+				"--add-header", "Accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+				"--add-header", "Accept-Language:en-US,en;q=0.5"
+			];
+		}
 
 		const infoArgs = [
 			"--get-filename",
@@ -175,7 +195,7 @@ app.get("/api/download", async (req, res) => {
 			"--no-warnings",
 			"--no-check-certificate",
 			"--age-limit", "99",
-			...youtubeArgs,
+			...platformArgs,
 			url
 		];
 
@@ -199,9 +219,20 @@ app.get("/api/download", async (req, res) => {
 					const rawFilename = sanitizeFilename(infoOutput);
 					if (rawFilename.includes('.')) {
 						const parts = rawFilename.split('.');
-						const ext = parts.pop();
-						filename = rawFilename;
-						fileExt = ext;
+						const extractedExt = parts.pop().toLowerCase();
+						const baseName = parts.join('.');
+
+						// Validate extracted extension is a known media format
+						if (validMediaExts.includes(extractedExt)) {
+							filename = rawFilename;
+							fileExt = extractedExt;
+						} else {
+							// Invalid extension (like .txt) - use default and keep base name
+							console.warn(`Invalid extension detected: .${extractedExt}, using default .${fileExt}`);
+							const expectedExt = format === 'audio' ? defaultAudioExt : defaultVideoExt;
+							filename = `${baseName}.${expectedExt}`;
+							fileExt = expectedExt;
+						}
 					} else {
 						filename = `${rawFilename}.${fileExt}`;
 					}
@@ -243,7 +274,7 @@ app.get("/api/download", async (req, res) => {
 			"--no-check-certificate",
 			"--age-limit", "99",
 			"--no-playlist",
-			...youtubeArgs,
+			...platformArgs,
 			url
 		];
 
