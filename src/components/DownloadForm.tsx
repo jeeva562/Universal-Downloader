@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -22,9 +22,9 @@ const DownloadForm: React.FC<DownloadFormProps> = () => {
   const { toast } = useToast();
 
   // Check clipboard support on mount
-  useState(() => {
+  useEffect(() => {
     setClipboardSupported(!!navigator.clipboard);
-  });
+  }, []);
 
   const isValidHttpUrl = (value: string) => {
     try {

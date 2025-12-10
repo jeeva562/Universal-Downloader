@@ -105,6 +105,35 @@ npm run build
 
 Output will be in the `dist/` directory.
 
+## 🚀 Deployment
+
+This app requires **separate deployment** for frontend (static) and backend (server).
+
+### Option 1: Netlify + Render (Recommended - Free)
+
+#### Backend (Render)
+1. Create account at [render.com](https://render.com)
+2. New → Web Service → Connect your GitHub repo
+3. Configure:
+   - **Build Command**: `bash build-render.sh`
+   - **Start Command**: `npm run server:start`
+4. Copy your Render URL (e.g., `https://universal-downloader-backend.onrender.com`)
+
+#### Frontend (Netlify)
+1. Deploy to [Netlify](https://netlify.com) from GitHub
+2. Add environment variable:
+   - **Key**: `VITE_API_URL`
+   - **Value**: Your Render backend URL
+3. Trigger redeploy
+
+### Option 2: Railway (All-in-One)
+1. Create account at [railway.app](https://railway.app)
+2. Deploy from GitHub - Railway auto-detects configuration
+3. Get your deployment URL
+
+> 📖 See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
+
+
 ## 🌐 Supported Platforms
 
 ### ✅ Fully Supported

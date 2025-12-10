@@ -53,3 +53,9 @@ debug.*
 # Binary files
 bin/
 yt-dlp
+
+# Vite temp files
+vite.config.ts.timestamp-*
+
+# Snapshots (auto-generated)
+.snapshots/
