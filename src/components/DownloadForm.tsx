@@ -257,13 +257,16 @@ const DownloadForm: React.FC<DownloadFormProps> = () => {
       if (error?.message?.includes('Sign in') || error?.message?.includes('bot')) {
         errorTitle = "YouTube Protection Triggered";
         errorMessage = "YouTube is blocking this download due to bot detection. This is a platform limitation, especially on cloud servers. Try a different video or use yt-dlp locally.";
+      } else if (error?.message?.includes('Instagram') || error?.message?.includes('empty media')) {
+        errorTitle = "Instagram Login Required";
+        errorMessage = "Instagram now requires login to access most content. This is a platform limitation. Try using a screen recorder or save directly from the Instagram app.";
       } else if (error?.message?.includes('404')) {
         errorMessage += "The content was not found. It may be private or deleted.";
       } else if (error?.message?.includes('403')) {
         errorMessage += "Access denied. The content may be restricted.";
       } else if (error?.message?.includes('timeout')) {
         errorMessage += "Download timed out. Please try again.";
-      } else if (error?.message?.includes('private') || error?.message?.includes('login')) {
+      } else if (error?.message?.includes('private') || error?.message?.includes('login') || error?.message?.includes('authentication')) {
         errorMessage += "This content requires login and is not publicly available.";
       } else {
         errorMessage += "Please check the URL and try again.";
